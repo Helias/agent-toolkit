@@ -21,9 +21,10 @@ Invocation: `/extract-pr-review-rules <repo-url>`
 Identify the forge from the repo URL and work through whatever MCP or CLI is connected for it
 (GitHub → `gh`). Unrecognized URL, or nothing connected → ask.
 
-The doc lands in the **current** project, not the URL's repo, under its governing-docs convention,
-default `.agents/docs/pr-review-rules.md`. Already there → read it: its checkpoint and standing
-rules make this a **refresh**. Absent → **first run**, no checkpoint, whole history in scope.
+The URL is only the comment source; the doc lands in the **current** project, under its
+governing-docs convention, default `.agents/docs/pr-review-rules.md`. Already there → read it: its
+checkpoint and standing rules make this a **refresh**. Absent → **first run**, no checkpoint, whole
+history in scope.
 
 Done when forge tooling, doc path, and checkpoint (a timestamp, or none) are settled.
 
