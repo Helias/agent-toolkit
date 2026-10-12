@@ -44,8 +44,8 @@ which would skip anything posted while the run was working.
 Then, still on disk, drop bots and deleted accounts, tally comments per author, and split the file
 into one per author. Nothing new to process → say so, leave the doc untouched, and stop.
 
-Done when each author's file exists, the tallies sum to the fetched total, and the new checkpoint
-is recorded.
+Done when each author's file exists, the tallies plus the dropped comments sum to the fetched
+total, and the new checkpoint is recorded.
 
 ## 3. Extract, one subagent per reviewer
 
