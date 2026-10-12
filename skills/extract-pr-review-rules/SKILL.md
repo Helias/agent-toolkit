@@ -22,9 +22,10 @@ Identify the forge from the repo URL and work through whatever MCP or CLI is con
 (GitHub → `gh`). Unrecognized URL, or nothing connected → ask.
 
 The URL is only the comment source; the doc lands in the **current** project, under its
-governing-docs convention, default `.agents/docs/pr-review-rules.md`. Already there → read it: its
-checkpoint and standing rules make this a **refresh**. Absent → **first run**, no checkpoint, whole
-history in scope.
+governing-docs convention, default `.agents/docs/pr-review-rules.md`. Absent → **first run**, no
+checkpoint, whole history in scope. Already there → read it: built from the same repo, its
+checkpoint and standing rules make this a **refresh**; built from another repo, ask — another doc
+path, or replace it with a first run.
 
 Done when forge tooling, doc path, and checkpoint (a timestamp, or none) are settled.
 
