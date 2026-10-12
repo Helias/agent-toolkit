@@ -90,7 +90,7 @@ Review helpers that check the codebase while assisting with code or ticket revie
   together, comment by comment — address, partial, or push back — drafting the replies, turning
   the accepted changes into a requirements doc, and recording the durable lessons, which
   self-improve persists when installed.
-  - **[extract-pr-review-rules](./skills/extract-pr-review-rules/SKILL.md)** — mine the conventions
+- **[extract-pr-review-rules](./skills/extract-pr-review-rules/SKILL.md)** — mine the conventions
   your reviewers actually enforce out of every PR review comment in a repo, saved as a per-reviewer
   rules doc the review skills read as a checklist; later runs resume from a checkpoint and read
   only the new comments.
