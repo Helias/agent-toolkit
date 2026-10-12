@@ -3,7 +3,7 @@ name: create-implementation-plan
 description: Turn a refined requirements document into a structured implementation PLAN.md a fresh session can execute. Planning only — decides the "how", not the "what". Invoke manually only.
 license: MIT
 metadata:
-  version: "1.9"
+  version: "1.13"
 ---
 
 # Create Implementation Plan
@@ -52,12 +52,20 @@ design, not a separate phase that runs before planning starts.
    the user approves is recorded in the plan's Overrides section, so the execution session knows
    it's deliberate.
 
+   **Prior art models shape, not content.** Its settings fit its own runtime, tooling and purpose
+   and may predate the current ones, so before a step reuses a file, check each setting against
+   the new component's target and prescribe only what fits, citing the file for shape; "copy X
+   verbatim" is a decision settled line by line, never by the file's existence. A technical claim
+   a step rests on ("X needs exactly Y") is verified against a doc, a compile or a test, never
+   read off what the prior art happens to do.
+
    **Grill the user along the way.** Whenever the approach hits a fork you can't settle from the
    code, stop and resolve it with the user before continuing — don't guess, and don't defer the
    decision into the plan. Interview relentlessly until you reach shared understanding, walking each
    branch of the decision tree and resolving dependencies between decisions:
    - One question at a time.
-   - Every question carries your recommended answer.
+   - Every question carries your recommended answer, worded via `explain-in-simple-language`
+     when available.
    - If a question can be answered by exploring the codebase, explore instead of asking.
    - Cover every gap, ambiguity, or inconsistency surfaced while reading, verifying, and designing.
 
@@ -126,26 +134,47 @@ something is a decision or a mechanical detail, put it in.
   the `*.TICKET.md` — close any gaps with the user instead. Never assume a requirement; ask.
 - Write the plan to disk only after every open question is resolved.
 
-State clearly when done that the plan file is ready, referring to it by its **project-relative
-path** (relative to the current working directory — never absolute). Then tell the user to start a
-**fresh execution session** with a clean context that reads **only the plan file**, implements it,
-then runs the project's validation (lint, tests, build).
+When done, state that the plan file is ready, by its **project-relative path** (relative to the
+working directory, never absolute), and offer these ways forward, each as a **single copy-pasteable
+launch command** — session name and prompt combined, so one paste starts a **fresh session** with
+a clean context. Use the agent tool's launch syntax (`claude` below is only the example) and name
+the session after `<slug>`, the plan filename's slug (without id prefix or extension), so the
+phase is recognizable in the session list:
 
-End with a **single copy-pasteable launch command** — session name and prompt combined, so one
-paste starts the execution session. Use the launch syntax of the agent tool in use
-(vendor-agnostic — `claude` below is only the example). Name the session `execute-plan-<slug>`,
-where `<slug>` is the plan filename's slug (without id prefix or extension), so the phase is
-recognizable in the session list, e.g.:
+1. **Execute the plan** — reads **only the plan file**, implements it, then runs the project's
+   validation (lint, tests, build):
 
-```
-claude --name execute-plan-report-approval "Execute the plan .agents/plans/123-report-approval/123-report-approval.PLAN.md"
-```
+   ```
+   claude --name execute-plan-report-approval "Execute the plan .agents/plans/123-report-approval/123-report-approval.PLAN.md"
+   ```
 
-Then offer the alternative — clearing the current session instead (vendor-agnostic — `/clear` below
-is only the example; use the clear command of the agent tool in use):
+2. **Split the plan into tasks** first, when `split-plan-tasks` is available, so the work lands in
+   small reviewable increments:
 
-OR /clear and run:
+   ```
+   claude --name split-plan-tasks-report-approval "/split-plan-tasks .agents/plans/123-report-approval/123-report-approval.PLAN.md"
+   ```
+
+3. **Harden the plan** first, when `harden-artifact` is available, so a fresh reviewer challenges
+   it against the ticket and the code before anything is built:
+
+   ```
+   claude --name harden-plan-report-approval "/harden-artifact .agents/plans/123-report-approval/123-report-approval.PLAN.md"
+   ```
+
+Then offer clearing the current session instead (`/clear` below is only the example; use the agent
+tool's clear command):
+
+OR /clear and run one of:
 
 ```
 Execute the plan .agents/plans/123-report-approval/123-report-approval.PLAN.md
+```
+
+```
+/split-plan-tasks .agents/plans/123-report-approval/123-report-approval.PLAN.md
+```
+
+```
+/harden-artifact .agents/plans/123-report-approval/123-report-approval.PLAN.md
 ```

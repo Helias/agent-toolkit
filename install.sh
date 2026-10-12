@@ -26,17 +26,35 @@
 #   --agents-dir DIR   Agent-neutral directory   (default: ~/.agents)
 #   --skills-dir DIR   Agent's skills directory  (default: ~/.claude/skills)
 #   --force            Overwrite real files/dirs and foreign symlinks
+#   --exclude NAME     Skip this skill and remove our link to it (persists)
+#   --include NAME     Install it again after --exclude
+#   --no-auto-update   Do not register the daily self-update hook (persists)
+#   --auto-update      Register it again after --no-auto-update
 #   -h, --help         Show this help
+#
+# Every skill is installed by default. --exclude is repeatable, covers every
+# skills dir wired from <agents-dir>, and is remembered in
+# <agents-dir>/excluded-skills, so the daily self-update honours it instead of
+# putting the skill back.
+#
+# When Claude Code is detected, this also registers a hook that fast-forwards
+# this clone once a day and re-runs the installers: docs/auto-update.md.
 
 set -euo pipefail
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO_DIR_LOGICAL="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "${REPO_DIR}/lib/install-utils.sh"
 
 AGENTS_DIR="${HOME}/.agents"
 SKILLS_DIR="${HOME}/.claude/skills"
 FORCE=0
+AUTO_UPDATE=""
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+TARGET_FLAG=--skills-dir
+EXCLUDE_ADD=()
+EXCLUDE_DEL=()
 
 usage() {
   cat <<'EOF'
@@ -66,9 +84,31 @@ Options:
   --agents-dir DIR   Agent-neutral directory   (default: ~/.agents)
   --skills-dir DIR   Agent's skills directory  (default: ~/.claude/skills)
   --force            Overwrite real files/dirs and foreign symlinks
+  --exclude NAME     Skip this skill and remove our link to it (persists)
+  --include NAME     Install it again after --exclude
+  --no-auto-update   Do not register the daily self-update hook (persists)
+  --auto-update      Register it again after --no-auto-update
   -h, --help         Show this help
+
+Every skill is installed by default. --exclude is repeatable, covers every
+skills dir wired from <agents-dir>, and is remembered in
+<agents-dir>/excluded-skills, so the daily self-update honours it instead of
+putting the skill back.
+
+When Claude Code is detected, this also registers a hook that fast-forwards
+this clone once a day and re-runs the installers: docs/auto-update.md.
 EOF
   exit "${1:-0}"
+}
+
+# Names are stored one per line and read back next run, so only a plain
+# directory name survives the round trip (no separators, no '#' comment marker).
+require_skill_name() {
+  [ $# -ge 2 ] || { echo "$1 needs a skill name." >&2; exit 1; }
+  case "$2" in
+    ''|-*|*[!A-Za-z0-9._-]*)
+      echo "$1: invalid skill name $(printf '%q' "$2")" >&2; exit 1 ;;
+  esac
 }
 
 while [ $# -gt 0 ]; do
@@ -81,12 +121,25 @@ while [ $# -gt 0 ]; do
       echo "install.sh installs skills only; for the rules run ./install-opinionated-rules.sh instead." >&2
       exit 1 ;;
     --force) FORCE=1; shift ;;
+    --exclude) require_skill_name "$@"; EXCLUDE_ADD+=("$2"); shift 2 ;;
+    --include) require_skill_name "$@"; EXCLUDE_DEL+=("$2"); shift 2 ;;
+    --no-auto-update) AUTO_UPDATE=off; shift ;;
+    --auto-update) AUTO_UPDATE=on; shift ;;
     -h|--help) usage 0 ;;
     *) echo "Unknown option: $1" >&2; usage 1 ;;
   esac
 done
 
 resolve_agents_dir
+load_exclusions excluded-skills
+for name in ${EXCLUDE_ADD[@]+"${EXCLUDE_ADD[@]}"}; do
+  [ -d "${REPO_DIR}/skills/${name}" ] || echo "Note: no skill named ${name} in this repo; excluding it anyway." >&2
+  exclude_add "$name"
+done
+for name in ${EXCLUDE_DEL[@]+"${EXCLUDE_DEL[@]}"}; do
+  exclude_remove "$name"
+done
+save_exclusions || echo "Warning: could not update ${EXCLUDE_FILE}; the --exclude/--include given here hold for this run only." >&2
 
 # Phase 1: populate the agent-neutral dir with links into the repo.
 # Pruning the agents dir first breaks downstream agent links for removed
@@ -97,6 +150,10 @@ prune_dir "${AGENTS_DIR}/skills"
 begin_phase
 for skill in "${REPO_DIR}"/skills/*/; do
   [ -d "$skill" ] || continue
+  if is_excluded "$(basename "${skill%/}")"; then
+    unlink_one "$(basename "${skill%/}")" "${AGENTS_DIR}/skills"
+    continue
+  fi
   link_one "${skill%/}" "${AGENTS_DIR}/skills"
 done
 end_phase
@@ -108,13 +165,22 @@ end_phase
 # name) are skipped too, so no dangling chain links are created.
 echo "Skills -> ${SKILLS_DIR}"
 mkdir -p "$SKILLS_DIR"
-if [ "$(cd "$SKILLS_DIR" && pwd -P)" = "${AGENTS_DIR}/skills" ]; then
+TARGET_DIR="$(cd "$SKILLS_DIR" && pwd -P)"
+if [ "$TARGET_DIR" = "${AGENTS_DIR}/skills" ]; then
   echo "  ok     (this is the agents dir itself; already populated)"
 else
+  # Excluded entries go first: phase 1 removed what they point at, so leaving
+  # them to prune_dir would report them as pruned rather than as excluded.
+  for skill in "${REPO_DIR}"/skills/*/; do
+    [ -d "$skill" ] || continue
+    is_excluded "$(basename "${skill%/}")" || continue
+    unlink_one "$(basename "${skill%/}")" "$SKILLS_DIR"
+  done
   prune_dir "$SKILLS_DIR"
   begin_phase
   for skill in "${REPO_DIR}"/skills/*/; do
     [ -d "$skill" ] || continue
+    is_excluded "$(basename "${skill%/}")" && continue
     src="${AGENTS_DIR}/skills/$(basename "${skill%/}")"
     if [ ! -e "$src" ]; then
       count_skip
@@ -137,5 +203,6 @@ if [ -d "${AGENTS_DIR}/rules" ]; then
 fi
 
 report_install_health
+finish_auto_update
 
 echo "Done."

@@ -3,7 +3,7 @@ name: refine-ticket
 description: Refine a development ticket — or brainstorm a raw idea — into a validated, self-contained REQUIREMENTS document — the "what", verified against the codebase. Invoke manually only.
 license: MIT
 metadata:
-  version: "1.13"
+  version: "1.16"
 ---
 
 # Refine ticket
@@ -33,9 +33,12 @@ the code here is for *validating* requirements, not for designing the solution.
   — never assume it matches the environment where the reported behaviour occurred; ask the user to
   confirm such values.
 - Treat "this probably works like X" as a question, not a fact. Keep "I confirmed X", "the ticket
-  claims X", and "I assume X" distinct; the latter two never become the first without evidence.
-- Before declaring something missing, broaden the search — "not found under the name the ticket
-  used" is not "not present".
+  claims X", and "I assume X" distinct; the latter two never become the first without evidence. A
+  decision marked settled by a ticket or design carries the quote that settles it; no quote, still
+  open.
+- Before declaring something missing, unique or unhandled ("no X does Y", "X's only user", "the
+  existing ones don't cover Z"), search every repo the feature spans for the concept — "not found
+  under the name the ticket used" is not "not present".
 - Verify both sides of an integration: if a requirement relies on another layer behaving a certain
   way, open that layer and confirm it.
 
@@ -44,7 +47,8 @@ the code here is for *validating* requirements, not for designing the solution.
 After gathering and code-verifying, **grill** the user — interview relentlessly, never guessing
 what they could clarify — to close every remaining decision:
 
-- One question at a time, each with your recommended answer.
+- One question at a time, each with your recommended answer, worded via
+  `explain-in-simple-language` when available.
 - If any part of a question is answerable from the codebase, explore it rather than ask — never
   bundle a code-answerable sub-question into a grill. "Which name, type, shape, or pattern fits?" is
   code-answerable: match the closest existing analogue, and let that verified convention outrank the
@@ -131,9 +135,12 @@ Six parts (Verified codebase facts, Overrides, and Open questions may be empty �
    (e.g. `(Description)`, `(Technical Detail)`, `(AC)`). Group by area when it aids reading. Cite
    the concrete file path / identifier inline wherever a requirement touches code; cite a reused
    pattern as `path:line-range`.
-4. **Overrides** — where the ticket says one thing and the requirement says another (ticket is
-   stale, wrong, or self-contradictory). Each entry: what the ticket says, what the code/AC shows,
-   the resulting requirement.
+4. **Overrides** — every deviation from the ticket in what must be true when the work is done: a
+   ticket statement changed or dropped, a requirement added. Rewording and merged duplicates are not
+   deviations; for an idea, only changing or dropping one of the user's own statements is one —
+   requirements shaped while grilling are not. Each entry: what the ticket says or omits, the
+   resulting requirement, and the reason with its source — what the code/AC shows, or the user's
+   decision while grilling.
 5. **Open questions** — non-blocking ambiguities, each with your tentative answer and why it's
    non-blocking. Blocking questions never appear here.
 6. **Acceptance criteria** — flat, verifiable checklist the implementation must satisfy.
@@ -155,7 +162,10 @@ plus the requirements file's slug:
 ```
 claude --name create-manual-test-<slug> "/create-manual-test-instructions <path>.REQUIREMENTS.md"   # QA manual test
 claude --name create-plan-<slug> "/create-implementation-plan <path>.REQUIREMENTS.md"               # Plan phase
+claude --name harden-requirements-<slug> "/harden-artifact <path>.REQUIREMENTS.md"                  # check it first
 ```
+
+The `harden-artifact` line only when that skill is available.
 
 The phase prefix (`create-plan-`, `execute-plan-`, …) keeps the pipeline phases distinguishable in
 the session list.

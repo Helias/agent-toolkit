@@ -38,8 +38,17 @@ Options:
 ./install.sh --agents-dir DIR        # custom agent-neutral location (default: ~/.agents)
 ./install.sh --skills-dir DIR        # agent skills dir to wire (e.g. a project's .claude/skills)
 ./install.sh --force                 # overwrite real files/dirs and foreign symlinks
+./install.sh --exclude NAME          # skip this skill and remove our link to it (persists)
+./install.sh --include NAME          # install it again after --exclude
+./install.sh --no-auto-update        # do not register the daily self-update hook (persists)
+./install.sh --auto-update           # register it again after --no-auto-update
 ./install.sh --help
 ```
+
+`--exclude` is repeatable and remembered in `<agents-dir>/excluded-skills`, so the daily update
+keeps the skill out instead of putting it back; `--include` undoes it. The choice covers every
+skills dir wired from that agents dir, and an entry the installer does not own (a copy, a foreign
+link) stays until you pass `--force`.
 
 You can also skip the script and symlink just the ones you want by hand, through the same two
 layers:
@@ -53,6 +62,21 @@ ln -s ~/.agents/skills/run-nx-checks ~/.claude/skills/
 Start a new session and run `/context` to confirm everything is loaded. Skills apply at the user
 level (all projects); to scope them to one project, wire that project's directory instead, e.g.
 `./install.sh --skills-dir <project>/.claude/skills`.
+
+## Staying up to date
+
+When Claude Code is detected, the install also registers a `SessionStart` hook that fast-forwards
+the clone once a day and re-runs the installers, so you do not have to
+([auto-update.md](./auto-update.md) covers it in full, other agents included). It is registered
+only when installing into Claude's own `~/.claude/skills` (or `~/.claude/rules`), and only for a
+clone that tracks an upstream. That one hook replays every install made from the clone, a
+project's `.claude/skills` included; a clone that only ever installed elsewhere — another agent, a
+project — gets the one-liner to wire by hand instead. `--no-auto-update` turns it off and is
+remembered, `--auto-update` turns it back on.
+
+It stays quiet unless the clone is stuck — dirty, detached, without an upstream, off the default
+branch, or diverged — and then says so once, naming the fix. Where entries were installed as
+copies rather than links ([Windows](#windows)), it says to re-run the installer with `--force`.
 
 ## Windows
 

@@ -3,7 +3,7 @@ name: handover
 description: Use when handing finished work over to code review — writing a PR description or packaging a change for review by a human, an agent, or both.
 license: MIT
 metadata:
-  version: "0.5"
+  version: "0.8"
 ---
 
 # Handover
@@ -33,6 +33,8 @@ Read these, skipping what doesn't exist:
    file and looks load-bearing for a why — in doubt whether to fetch, ask.
 3. **The session**, when it produced the change: decisions, pivots, constraints.
 4. **The diff** against the target, plus commit subjects.
+5. **PR conventions** — the repo's PR template, wherever the forge looks for one (e.g. root,
+   `.github/`, `docs/`; several → ask the author which), and any project skill for PR descriptions.
 
 An earlier artifact — a ticket review, a prior round — counts only where nothing later settled the
 point.
@@ -45,13 +47,14 @@ Then match the plan's steps and acceptance criteria against the diff both ways �
 absent, present but unplanned. Done when every source is read or confirmed absent and every planned
 item is matched.
 
-## Never invent rationale
+## Source every claim
 
-State a "why" only where a source gives it. A deviation nothing explains is asked of the author
-once; unanswered or unaskable, it ships flagged in plain words ("nothing records why — worth
-confirming"), since it may be an unintentional gap rather than a decision. Sourcing is your gate,
-not the reviewer's reading: it decides what you may write, and never appears in the text.
-When not sure, always ask. Never guess.
+State a "why", or any other claim about the change, only where a source gives it. Silence is not a
+source: never infer a fact from what the diff and docs leave unsaid ("untested so far", "nobody
+calls this"). A deviation nothing explains is asked of the author once; unanswered or unaskable, it
+ships flagged in plain words ("nothing records why — worth confirming"), since it may be an
+unintentional gap rather than a decision. Sourcing is your gate, not the reviewer's reading: it
+decides what you may write, and never appears in the text. When not sure, always ask. Never guess.
 
 ## The artifact
 
@@ -71,6 +74,7 @@ paste-ready as the PR description, and stands alone:
   line per paragraph or bullet.
 - **Plain reviewer-facing wording**, never this skill's vocabulary. Before drafting, actually
   invoke use-conversational-language — reciting its rules from memory does not count.
+  Not installed: write plain prose instead, no dashes and no AI tells.
 
 Sections, skipped only when truly empty:
 
@@ -78,10 +82,18 @@ Sections, skipped only when truly empty:
 2. **Decisions worth knowing** — at most 5 lines, each: what was chosen or what departs from the
    plan, its why or the missing-why flag, and where in the code to see it.
 3. **Review guide** — the few files where judgment matters and why; the rest named as mechanical.
-4. **Known gaps** — at most 3: shortcomings, assumptions, open questions.
+4. **Known gaps** — at most 3 shortcomings, assumptions or open questions the sources establish;
+   none → omit the section, never manufacture one.
 
-Done when every section is filled or knowingly skipped, nothing reads as verified that wasn't, and
-nothing in the text points at something the reviewer cannot open.
+**Repo PR template** (if the repo has one) → the body is that template filled in, under
+a title in the repo's commit convention: each section above goes into the template's matching
+section, else its description section; checkboxes and fields are ticked or filled only where a
+source backs them, else left blank; instructional comments stripped, fixed footers kept; the word
+cap counts only your prose. A project skill for PR descriptions overrides these rules where they
+differ. No template → the body is just the sections above.
+
+Done when every section and template field is filled or knowingly skipped, every claim traces to a
+source, and nothing in the text points at something the reviewer cannot open.
 
 ## Boundaries
 

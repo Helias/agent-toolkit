@@ -3,7 +3,7 @@ name: refine-pr-review
 description: Triage a fetched PR review with the user, comment by comment, drafting each reply and producing a REQUIREMENTS file for the accepted code changes. Takes the PR-REVIEW file produced by fetch-pr-review. Invoke manually only.
 license: MIT
 metadata:
-  version: "1.0"
+  version: "1.4"
 ---
 
 # Refine PR review
@@ -21,11 +21,20 @@ phases see only code changes.
   was done and what was kept and why.
 - **push back**: no code change; the reply carries the reason.
 
+## Naming a comment
+
+Never refer to a comment by index or position, anywhere — questions, batch lists, hand-off text.
+Quote its opening words instead, truncated to the shortest unique prefix — the comment "the null
+check here misses …". Always verbatim, never translated or corrected, so the quote can be searched
+on the page. Only the ANSWERS table's own row numbers stay, for in-file cross-references.
+
 ## Phase 1 — triage every comment with the user
 
 Read the code behind each comment first: verify its premise against the current codebase, never
 judging from the quoted hunk alone. Then form a recommendation — verdict, reasoning, and (for
-partial and push back) a draft reply. Nothing is decided silently:
+partial and push back) a draft reply. Nothing is decided silently, and every question to the
+user is worded via `explain-in-simple-language` when available, the draft reply it carries
+excepted:
 
 - **Contentious ones one at a time**: every comment recommended partial or push back, or
   uncertain, is its own question carrying recommendation, reasoning, and draft reply.
@@ -68,17 +77,29 @@ When every verdict is push back, skip this phase: no REQUIREMENTS file, nothing 
 `1234-task.PR-REVIEW.ANSWERS.md`) — the user's copy-paste sheet and the durable record of what was
 pushed back. One table row per comment, resolved and bot rows included for completeness:
 
-| # | Location | Verdict | Reply | Notes |
+| # | Original comment | Location | Verdict | Reply | Notes |
 
+- **Original comment** — its opening words verbatim, truncated to the shortest unique prefix.
 - **Location** — `path:line` / thread anchor from the PR-REVIEW file, so each reply is easy to
   place on the platform.
 - **Verdict** — `address` / `partial` / `push back`, or `no action` / `resolved earlier` /
   `bot: ignored` / `bot: included`.
-- **Reply** — voiced per **/use-conversational-language** (Developer conversations, author replies);
+- **Reply** — voiced per **/use-conversational-language** (Developer conversations, author replies),
+  or, when it is not installed, plain prose with no dashes and no AI tells;
   canned one-liner for address. Post-fix stance: written as if the accepted changes are already
   made ("did X, kept Y as is because …") — the sheet is pasted after the fixes land. A reply too
   long for a cell goes below the table, referenced by its row number.
 - **Notes** — the reasoning in a few words, for future review rounds.
+
+## Lessons
+
+During Phase 1, note accepted comments (address, the accepted part of partial, bot: included)
+whose lesson generalizes — would a fresh agent on another task here plausibly repeat the mistake?
+A one-off slip fails; a convention or recurring pattern passes. After Phase 2, present them as one
+batch for the user to strike or add to, each phrased as the general rule, not the incident ("Mock
+external HTTP in unit tests", not "the null check on line 42"). Write the survivors as a
+`## Lessons` section at the end of the ANSWERS file, one line each with its source row numbers;
+none → no section.
 
 ## Boundaries
 
@@ -102,6 +123,13 @@ Substantial change set (cross-file rework, design decisions) — plan first:
 
 ```
 claude --name create-plan-<slug> "/create-implementation-plan <path>.PR-REVIEW.REQUIREMENTS.md"
+```
+
+Lessons written and `/self-improve` installed — persist them; document-only, so it runs alongside
+the execute session:
+
+```
+claude --name self-improve-<slug> "/self-improve Persist the lessons listed under Lessons in <path>.PR-REVIEW.ANSWERS.md"
 ```
 
 Then offer the alternative — clearing the current session (vendor-agnostic — `/clear` is only the

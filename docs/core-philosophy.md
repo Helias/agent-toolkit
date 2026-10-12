@@ -59,8 +59,8 @@ In the toolkit:
 - Document-only phases of different tasks can run in parallel sessions without conflicts; code
   changes stay sequential (or in git worktrees).
 - Fresh eyes validate: a clean session can check any artifact against its predecessor —
-  requirements against ticket, implementation against plan (`fresh-eyes-review`,
-  `check-ticket-implementation`).
+  requirements against ticket, implementation against plan (`harden-artifact`,
+  `fresh-eyes-review`, `check-ticket-implementation`).
 - Artifacts are plain markdown: any human or agent can read, review, share or hand them off, and
   they live on after the task ships — as PR descriptions, ticket comments, documentation. This is
   what makes the workflow team-friendly regardless of how much AI the team uses.
@@ -75,6 +75,9 @@ In the toolkit:
 - The golden rule: never guess, ask. When requirements are ambiguous, the agent asks one question
   at a time, always paired with a recommended answer (the "grilling" technique). Questions
   answerable from the codebase go to the codebase, only genuine decisions go to the human.
+- The human can only decide what they understand: questions and explanations to the user, and
+  documents humans read, are worded for the first read (`explain-in-simple-language`, enforced by
+  the `write-simple-explanations` rule).
 - Suggest, never apply: skills that modify things (memory, docs, other skills, trims to config)
   present a diff or proposal and wait for approval.
 - Predictability over magic: the user always knows what loaded into the context and why — the
@@ -89,10 +92,11 @@ persisted somewhere durable, versioned, and shared, or it will be repeated.
 
 In the toolkit:
 
-- `/self-improve` locates the governing skill, rule or doc behind a mistake and proposes a compact
-  edit that would have prevented it.
+- `/self-improve` locates the governing skill, rule, doc or check behind a mistake and proposes a
+  compact edit, or a check, that would have prevented it.
 - The `self-improve-on-correction` rule closes the loop by offering this automatically whenever
-  the user corrects the agent.
+  the user corrects the agent; `/refine-pr-review`, `/self-review` and `/harden-artifact` do the
+  same for the durable lessons in accepted review findings.
 - Lessons get promoted out of private memory into homes the team controls: project docs, skills,
   rules. Individual corrections become collective improvements.
 - Result: the toolkit and its host projects genuinely improve every day of use.

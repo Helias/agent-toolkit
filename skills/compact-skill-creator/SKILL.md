@@ -4,7 +4,7 @@ description: Author or refine a skill for maximum token economy without losing i
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 license: MIT
 metadata:
-  version: "1.16"
+  version: "1.22"
 ---
 
 # Compact skill creator
@@ -23,7 +23,7 @@ restates or re-derives them. From the moment you draft (step 4) through self-rev
 present (step 6), **always** invoke compact-docs-writer and follow its workflow on the skill text —
 reading it, applying its principles by hand, or naming it after a direct edit does not count. This
 skill adds only the skill-specific layer: trigger taxonomy, agnosticism, progressive disclosure,
-completion criteria, metadata, and the version-bump decision.
+completion criteria, metadata, and the version bump.
 
 ## Trigger taxonomy — classify first
 
@@ -85,7 +85,8 @@ in the body, where they steer nothing.
   dependencies, not the whole toolkit, so a link to a sibling that isn't a dependency can dangle.
   Reference another skill only when it's a declared dependency or the link earns its keep
   operationally (e.g. an actionable next-step handoff); never add orientation prose that merely
-  situates the skill among its siblings.
+  situates the skill among its siblings. An optional sibling gates its hand-off; gate the artifact
+  feeding it too only when, without the sibling, it isn't worth its run-time cost.
 
 ## Progressive disclosure — when to split
 
@@ -118,9 +119,13 @@ disclosed doc).
    branch of the skill's design tree, resolving dependencies between decisions one at a time —
    never fire a fixed batch of questions once and then draft. Cover at least the purpose, **trigger
    type**, and any unavoidable coupling, plus whatever each answer opens up. Ask one question at a
-   time, each with your recommended answer; if a question can be answered by exploring the codebase,
-   explore instead of asking. Scale depth to complexity (complex skill → more questions; simple →
-   few). The only limit: never interview for its own sake.
+   time, each with your recommended answer, worded via `explain-in-simple-language` when
+   available; if a question can be answered by exploring the codebase, explore instead of asking.
+   A skill reading what other skills produce, or stepping into their hand-offs, takes its input
+   types, the options its own hand-off carries on, and the files it must never write from a search
+   of every such skill — never from the one pipeline in mind.
+   Scale depth to complexity (complex skill → more questions; simple → few). The only limit: never
+   interview for its own sake.
 3. **Metadata.** Always include the frontmatter fields; never hardcode their values. Creating: infer
    defaults from context (sibling `SKILL.md` files, `git config user.name`, repo `LICENSE`), ask the
    user to confirm or override. Version starts at `"1.0"`, or `"0.x"` when the author wants a trial
@@ -143,12 +148,15 @@ disclosed doc).
        invocation work?
 
      Reword until all four hold.
+   - Body consistent with itself? Every "never" checked against each step and source it could
+     forbid; every advertised input type handled by each step that touches it (a check fitting
+     only one type fails the rest); every write surfaced where its reader looks — when a later
+     phase reads only a document derived from the edited one, the addition reaches that one too.
    - No new or grown inline chunk meets the split test (progressive disclosure)?
    - Steps end on checkable, exhaustive completion criteria?
 6. **Present & confirm** through compact-docs-writer (diff + word delta measured from the files,
-   applied only on approval). In improve mode, **always put the version-bump decision to the
-   user** — asking after applying is fine, but the edit stays incomplete until the version is
-   settled; content approval (even given in advance) never covers it, so never let the question
-   drop. If the version was already raised since the last commit, fold the change into that
-   pending bump rather than bump again — and verify that pending state from git (version at HEAD
-   vs working tree), never from session memory: the repo may have moved concurrently.
+   applied only on approval). In improve mode the draft **includes a version bump** — the last
+   component, unless the author names a value — never a question put to the user. Skip it only
+   when the version was already raised, uncommitted or on the branch against its target, verified
+   from git (version at HEAD and at the merge base vs working tree), never from session memory:
+   the repo may have moved concurrently.

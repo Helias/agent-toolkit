@@ -5,7 +5,7 @@ disable-model-invocation: true
 type: flow
 license: MIT
 metadata:
-  version: "1.2"
+  version: "1.4"
 ---
 
 # Review ticket
@@ -116,6 +116,11 @@ scope, the question converts to a handoff.
 
 ## Output
 
+Before writing the walkthrough and the why-it-matters notes, actually invoke
+[explain-in-simple-language](../explain-in-simple-language/SKILL.md) and follow it — reciting its
+rules from memory does not count. Not installed: plain words, one idea per sentence, and nothing
+named only by a stand-in the reader hasn't seen.
+
 1. **Verdict line** first, so the answer lands at once, e.g.
    `2 questions to resolve before starting` or `Looks ready to pick up, no blockers.`
    Handoffs never count as blockers here.
@@ -144,8 +149,8 @@ scope, the question converts to a handoff.
    A handoff uses the same block format, `### Handoff · <short label>` in place of the number.
    Actually invoke [use-conversational-language](../use-conversational-language/SKILL.md) and
    follow it before writing the questions or handoff messages — reciting its rules from memory
-   does not count; runs with neither skip it. When nothing survived, print only the verdict line
-   plus any handoffs.
+   does not count; runs with neither skip it. Not installed: write plain prose instead, no dashes
+   and no AI tells. When nothing survived, print only the verdict line plus any handoffs.
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

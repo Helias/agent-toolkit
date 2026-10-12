@@ -15,11 +15,17 @@
         "compact-governing-docs.md": {
           "requires": ["skills/compact-skill-creator", "skills/compact-docs-writer"]
         },
+        "self-contained-docs.md": {
+          "requires": ["skills/prepare-prompt"]
+        },
         "write-realistic-texts.md": {
           "requires": ["skills/use-conversational-language"]
         },
         "no-nonsense-comments.md": {
           "requires": ["skills/use-conversational-language"]
+        },
+        "write-simple-explanations.md": {
+          "requires": ["skills/explain-in-simple-language"]
         }
       }
     },
@@ -37,28 +43,39 @@
           "requires": ["skills/self-improve"]
         },
         "review-ticket": {
-          "requires": ["skills/fetch-ticket", "skills/use-conversational-language"]
+          "requires": [
+            "skills/fetch-ticket",
+            "skills/use-conversational-language",
+            "skills/explain-in-simple-language"
+          ]
         },
         "refine-pr-review": {
           "requires": ["skills/refine-ticket", "skills/use-conversational-language"]
         },
         "review-code-assistant": {
-          "requires": ["skills/use-conversational-language"]
+          "requires": ["skills/use-conversational-language", "skills/explain-in-simple-language"]
         },
         "maintainer-review": {
           "requires": [
             "skills/review-code-assistant",
             "skills/fresh-eyes-review",
-            "skills/use-conversational-language"
+            "skills/use-conversational-language",
+            "skills/explain-in-simple-language"
           ]
         },
         "check-ticket-implementation": {
-          "requires": ["skills/fetch-ticket"]
+          "requires": ["skills/fetch-ticket", "skills/explain-in-simple-language"]
+        },
+        "create-manual-test-instructions": {
+          "requires": ["skills/explain-in-simple-language"]
         },
         "handover": {
           "requires": ["skills/use-conversational-language"]
         },
         "self-review": {
+          "requires": ["skills/fresh-eyes-review"]
+        },
+        "harden-artifact": {
           "requires": ["skills/fresh-eyes-review"]
         }
       }
