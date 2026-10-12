@@ -12,7 +12,7 @@ metadata:
 
 Mine the conventions a repository's reviewers enforce in their inline PR review comments into one
 governing doc the project's review skills run as a checklist. Re-runnable: each run resumes from
-the last one's checkpoint, fetching only newer comments.
+the last checkpoint, fetching only newer comments.
 
 Invocation: `/extract-pr-review-rules <repo-url>`
 
@@ -21,12 +21,11 @@ Invocation: `/extract-pr-review-rules <repo-url>`
 Identify the forge from the repo URL and work through whatever MCP or CLI is connected for it
 (GitHub → `gh`). Unrecognized URL, or nothing connected → ask.
 
-The URL says where the comments come from; the doc lands in the **current** project, under its
-governing-docs convention, defaulting to `.agents/docs/pr-review-rules.md`. Already there → read
-it: its checkpoint and standing rules make this a **refresh**. Absent → **first run**, no
-checkpoint, whole history in scope.
+The doc lands in the **current** project, not the URL's repo, under its governing-docs convention,
+default `.agents/docs/pr-review-rules.md`. Already there → read it: its checkpoint and standing
+rules make this a **refresh**. Absent → **first run**, no checkpoint, whole history in scope.
 
-Done when the forge tooling, the doc path, and the checkpoint (a timestamp, or none) are settled.
+Done when forge tooling, doc path, and checkpoint (a timestamp, or none) are settled.
 
 ## 2. Fetch to disk
 
@@ -58,7 +57,7 @@ time. Prompt each with:
 - **the bar** — a rule is a convention that outlives the line it was written on ("always use
   `inject()`", "never leave a TODO without a ticket"). A comment fixing only its own spot ("this
   import is unused", "rename this to `x`") is dropped unless it states the underlying rule. One
-  comment is enough to found a rule; recurrence is not required;
+  comment is enough to found a rule;
 - **the shape** — return that reviewer's section and nothing else: `### <topic>` sub-headings
   derived from their own comments, never a fixed taxonomy; one bullet per rule, imperative and on
   one line, closing with its source-comment links, newest first, capped at 5;
@@ -72,12 +71,11 @@ Each extracted rule, against the rules already in the doc:
 
 - **Reinforces** one — same rule, fresh evidence → append its links, keep the newest 5. Silent.
 - **New** → add it under the reviewer's fitting topic. Silent.
-- **Contradicts** one — the team moved on → the newer wins, but never silently: show the standing
-  rule, the comment overturning it with author and date, and the proposed replacement; apply on
-  approval, keep the old rule if the user prefers.
+- **Contradicts** one — the team moved on → propose replacing it: show the standing rule, the
+  overturning comment with author and date, and the replacement; apply on approval, else keep the
+  old rule.
 
-Rules whose comments this run didn't re-fetch stay exactly as they are; never rewrite the doc from
-a partial fetch.
+Rules this fetch didn't reach stay exactly as they are; never rewrite the doc from a partial fetch.
 
 Done when every extracted rule is appended, added, or settled with the user.
 
@@ -115,9 +113,9 @@ timestamp.
 
 ## 6. Index and close
 
-Review skills reach the doc through the project's agent entry file: unless `AGENTS.md`/`CLAUDE.md`
-already links it, propose a one-line index entry with a read-when hook — `- [PR review
-rules](.agents/docs/pr-review-rules.md) — read when reviewing a change` — and add it on approval.
+Unless the project's agent entry file (`AGENTS.md`/`CLAUDE.md`) already links the doc, propose a
+one-line index entry with a read-when hook and add it on approval:
+`- [PR review rules](.agents/docs/pr-review-rules.md) — read when reviewing a change`
 
 Close with the doc's project-relative path, the counts (comments processed, rules added,
 reinforced, superseded), and the new checkpoint.
